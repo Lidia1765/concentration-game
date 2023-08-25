@@ -11,12 +11,46 @@ import type { ICard } from './components/Card'
 
 export function App() {
   const [cards, setCards] = React.useState<ICard[]>([])
-  const [isLocked] = React.useState<boolean>(false)
+  const [isLocked, setIsLocked] = React.useState<boolean>(false)
   const [flipsCount, setFlipsCount] = React.useState<number>(0)
   const [isGameOver, setIsGameOver] = React.useState<boolean>(false)
+  const [openedCard, setOpenedCard] = React.useState(false)
 
   const chooseCard = (currentCard: ICard) => {
-    // write code here
+    const allPairs = 0;
+    setFlipsCount(flipsCount + 1)
+
+    if (cards) {
+      setOpenedCard(currentCard)
+      setCards(cards.map(cards =>{
+        if (cards.id === currentCard.id) return {open: true}
+        openedCard(true)
+      }))
+    }
+
+    if (openedCard === currentCard) {
+      setOpenedCard(true)
+      setIsLocked(true)
+
+      setCards(cards.map(cards =>{
+        if (cards.id === currentCard.id) return {open: true}
+        openedCard(true)
+      }))     
+    }
+
+    if(allPairs === cards.length) {
+      setIsGameOver(true)
+    }
+
+    if (openedCard !== currentCard) {
+      setOpenedCard(true)
+      setIsLocked(true)
+
+      setCards(cards.map(cards =>{
+        if (cards.id === currentCard.id) return {open: false}
+        openedCard(false)
+      }))     
+    }
   }
 
   const createCards = () => {
