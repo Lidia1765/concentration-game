@@ -14,7 +14,7 @@ export function App() {
   const [isLocked, setIsLocked] = React.useState<boolean>(false)
   const [flipsCount, setFlipsCount] = React.useState<number>(0)
   const [isGameOver, setIsGameOver] = React.useState<boolean>(false)
-  const [openedCard, setOpenedCard] = React.useState(false)
+  const [openedCard, setOpenedCard] = React.useState<ICard | null>(null)
 
   const chooseCard = (currentCard: ICard) => {
     const allPairs = 0;
