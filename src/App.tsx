@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { generateId, randomChoice, shuffle } from './utils'
+import { generateId, pause, randomChoice, shuffle } from './utils'
 import emojis from './emojis'
 import { NUMBER_OF_PAIRS, TRANSITION_TIME } from './constants'
 import { Card } from './components/Card'
@@ -15,50 +15,50 @@ export function App() {
   const [flipsCount, setFlipsCount] = React.useState<number>(0)
   const [isGameOver, setIsGameOver] = React.useState<boolean>(false)
   const [openedCard, setOpenedCard] = React.useState<ICard | null>(null)
-  const [matchedCards] = React.useRef(0)
+  const matchedCards = React.useRef(0)
 
-  const chooseCard = (currentCard: ICard) => {
-    const allPairs = 0;
+  const chooseCard = async(currentCard: ICard) => {
     setFlipsCount(flipsCount + 1)
 
     if (!openedCard) {
       setOpenedCard(currentCard)
       setCards(cards.map(card => {
-        if (card.emoji === currentCard.emoji) return { ...card, isFaceUp: true }
+        if (card.id === currentCard.id) return { ...card, isFaceUp: true }
         return card
       }))
     }
 
-    if (openedCard.emoji === currentCard.emoji) {
+    if (openedCard && openedCard.emoji === currentCard.emoji) {
       setOpenedCard(null)
       setIsLocked(true)
-      matchedCards += 1;
+      matchedCards.current += 1;
+
+      await pause(TRANSITION_TIME)
 
       setCards(cards.map(card =>{
-        if (card.emoji === currentCard.emoji) return { ...card, isFaceUp: true, isMatched: true }
-        return card
+        if (card.id === openedCard.id) return { ...card, isMatched: true }
+        if (card.id === currentCard.id) return { ...card, isFaceUp: true, isMatched: true }
+        return {...card, isFaceUp: false}
       }))     
     }
 
-    await (TRANSITION_TIME)
-
-    if(matchedCards === NUMBER_OF_PAIRS) {
+    if(matchedCards.current === NUMBER_OF_PAIRS) {
       setIsGameOver(true)
     }
 
-    if (openedCard.emoji !== currentCard.emoji) {
+    if (openedCard && openedCard.emoji !== currentCard.emoji) {
       setOpenedCard(null)
       setIsLocked(true)
 
-      await (TRANSITION_TIME)
+      await pause(TRANSITION_TIME)
 
       setCards(cards.map(card =>{
-        if (card.emoji === currentCard.emoji) return { ...card, isFaceUp: false, isFailure: true }
+        if (card.id === openedCard.id) return { ...card, isFailure: true }
+        if (card.id === currentCard.id) return { ...card, isFaceUp: true, isFailure: true }
         return card
       }))     
      }     
     }
-  }
 
   const createCards = () => {
     let tempCards: ICard[] = []
